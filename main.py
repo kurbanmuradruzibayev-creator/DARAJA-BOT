@@ -1,32 +1,32 @@
 import os
-from telegram import Update, ReplyKeyboardMarkup, ReplyKeyboardRemove
-from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
+import telebot
 from dotenv import load_dotenv
 
+# .env fayldan token olish
 load_dotenv()
-TOKEN = os.getenv("BOT_TOKEN")
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
 
-# Boshlanish komandasi
-async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    keyboard = [["A1", "A2"], ["B1", "B2"], ["C1", "C2"]]
-    reply_markup = ReplyKeyboardMarkup(keyboard, one_time_keyboard=True, resize_keyboard=True)
-    await update.message.reply_text(
-        "Assalomu alaykum! 👋\nIngliz tili darajangizni aniqlash uchun birini tanlang:",
-        reply_markup=reply_markup
+bot = telebot.TeleBot(TOKEN)
+
+# /start komandasi
+@bot.message_handler(commands=['start'])
+def start(message):
+    markup = telebot.types.ReplyKeyboardMarkup(one_time_keyboard=True, resize_keyboard=True)
+    markup.add("A1", "A2", "B1", "B2", "C1", "C2")
+    bot.send_message(
+        message.chat.id,
+        "👋 Assalomu alaykum!\nIngliz tili darajangizni aniqlash uchun variantlardan birini tanlang:",
+        reply_markup=markup
     )
 
-# Daraja tanlash
-async def level(update: Update, context: ContextTypes.DEFAULT_TYPE):
-    user_level = update.message.text
-    await update.message.reply_text(f"Siz tanlagan daraja: {user_level}", reply_markup=ReplyKeyboardRemove())
-
-def main():
-    app = Application.builder().token(TOKEN).build()
-
-    app.add_handler(CommandHandler("start", start))
-    app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, level))
-
-    app.run_polling()
+# Foydalanuvchi javobi
+@bot.message_handler(func=lambda msg: True)
+def handle_message(message):
+    if message.text in ["A1", "A2", "B1", "B2", "C1", "C2"]:
+        bot.send_message(message.chat.id, f"✅ Sizning tanlovingiz: {message.text}")
+    else:
+        bot.send_message(message.chat.id, "Iltimos, menyudan darajani tanlang.")
 
 if __name__ == "__main__":
-    main()
+    print("🤖 Bot ishga tushdi...")
+    bot.polling(none_stop=True)
