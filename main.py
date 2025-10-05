@@ -77,7 +77,19 @@ def ask_question(chat_id):
         # Test tugadi
         score = state["score"]
         total = len(questions[level])
-        bot.send_message(chat_id, f"🏁 Test tugadi!\nNatijangiz: {score}/{total} ✅")
+        level = state["level"]
+        name = bot.get_chat(chat_id).first_name  # foydalanuvchi ismini olish
+
+        # "CERTIFICATE" chiqarish
+        cert_text = (
+            "🎓 *CERTIFICATE*\n\n"
+            f"👤 Ism: *{name}*\n"
+            f"📘 Level: *{level}*\n"
+            f"📊 Natija: *{score}/{total}*\n\n"
+            "✅ Tabriklaymiz! Siz muvaffaqiyatli testdan o'tdingiz."
+        )
+
+        bot.send_message(chat_id, cert_text, parse_mode="Markdown")
         user_state.pop(chat_id)
 
 # Javoblarni tekshirish
